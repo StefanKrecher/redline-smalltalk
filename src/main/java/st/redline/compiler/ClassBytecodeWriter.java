@@ -53,7 +53,8 @@ public class ClassBytecodeWriter implements Opcodes {
 
 	private void initialize() {
 		cw = verbose() ? tracingClassWriter() : nonTracingClassWriter();
-		fullyQualifiedClassName = packageName.length() > 0 ? packageName + File.separator + className : className;
+//		fullyQualifiedClassName = packageName.length() > 0 ? packageName + File.separator + className : className;
+		fullyQualifiedClassName = (packageName.length() > 0 ? packageName + "." + className : className).replaceAll("\\.", "/");
 	}
 
 	private boolean verbose() {
@@ -203,6 +204,11 @@ public class ClassBytecodeWriter implements Opcodes {
 	public void stackPushNil(int line) {
 		visitLine(line);
 		mv.visitFieldInsn(GETSTATIC, PROTOOBJECT, "instanceOfUndefinedObject", "Lst/redline/ProtoObject;");
+	}
+
+	public void stackPushSmalltalk(int line) {
+		visitLine(line);
+		mv.visitFieldInsn(GETSTATIC, PROTOOBJECT, "instanceOfSmalltalk", "Lst/redline/ProtoObject;");
 	}
 
 	public void stackPushSuper(int line) {

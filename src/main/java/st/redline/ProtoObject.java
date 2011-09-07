@@ -36,6 +36,7 @@ public class ProtoObject {
 	private static final ThreadLocal<Stack<String>> packageRegistry = new ThreadLocal<Stack<String>>();
 	protected static final Map<String, String> packageMap = new HashMap<String, String>();	private static final Map<String, ProtoObject> symbols = new HashMap<String, ProtoObject>();
 
+	protected static ProtoObject instanceOfSmalltalk;
 	protected static ProtoObject instanceOfUndefinedObject;
 	protected static ProtoObject instanceOfTrue;
 	protected static ProtoObject instanceOfFalse;
@@ -304,7 +305,7 @@ public class ProtoObject {
 	}
 
 	public static void primitivePackageAtPut(ProtoObject receiver, String name, String packageName) {
-		receiver.packageAtPut(name, packageName);
+		receiver.packageAtPut(name, packageName.replaceAll("/", "."));
 	}
 
 	protected ProtoObject loadObject(String name) {

@@ -64,7 +64,7 @@ public class SmalltalkClassLoader extends ClassLoader {
 		SourceFile sourceFile = findSource(className);
 		if (sourceFile == null)
 			return tryFindSystemClass(className);
-		return classFrom(sourceFile);
+		return classFrom(sourceFile, className);
 	}
 
 	private Class tryFindSystemClass(String className) {
@@ -75,9 +75,10 @@ public class SmalltalkClassLoader extends ClassLoader {
 		}
 	}
 
-	private Class classFrom(SourceFile sourceFile) {
+	private Class classFrom(SourceFile sourceFile, String className) {
 		byte[] classBytes = compile(sourceFile);
-		return defineClass(null, classBytes, 0, classBytes.length);
+		Class clazz = defineClass(null, classBytes, 0, classBytes.length);
+		return clazz;
 	}
 
 	public Class defineClass(byte[] classBytes) {

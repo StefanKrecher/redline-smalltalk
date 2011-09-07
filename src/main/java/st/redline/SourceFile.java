@@ -52,7 +52,7 @@ public class SourceFile extends File {
 		name = name.substring(0, index);
 		for (String path : SourceFileFinder.sourceFilePaths())
 			if (name.startsWith(path))
-				return (path.length() == name.length()) ? "" : name.substring(path.length() + 1);
+				return ((path.length() == name.length()) ? "" : name.substring(path.length() + 1)).replaceAll("\\" + File.separator, ".");
 		return name;
 	}
 
