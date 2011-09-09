@@ -63,6 +63,10 @@ public class ProtoObject {
 		cls(cls);
 	}
 
+	public ProtoObjectData getData() {
+		return data;
+	}
+	
 	public void name(String name) {
 		this.name = name;
 	}
@@ -99,7 +103,7 @@ public class ProtoObject {
 
 	public static void primitiveCompileMethod(ProtoObject receiver, String fullMethodName, String methodName, String className, String packageName, int countOfArguments) {
 		// TODO.JCL clean this up.
-//		System.out.println("primitiveCompileMethod() " + receiver + " " + fullMethodName + " " + methodName + " " + className + " " + packageName + " " + countOfArguments);
+		System.out.println("primitiveCompileMethod() " + receiver + " " + fullMethodName + " " + methodName + " " + className + " " + packageName + " " + countOfArguments);
 		AbstractMethod methodToBeCompiled = methodsToBeCompiled.remove(fullMethodName);
 		if (methodToBeCompiled == null)
 			throw new IllegalStateException("Method to be compiled '" + fullMethodName + "' not found.");

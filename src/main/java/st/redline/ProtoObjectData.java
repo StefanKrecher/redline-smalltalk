@@ -14,6 +14,7 @@ public abstract class ProtoObjectData {
 	abstract void superclass(ProtoObject superclass);
 	abstract ProtoObject superclass();
 	abstract ProtoMethod methodAt(String selector);
+	abstract ProtoMethod[] methods();
 	abstract void methodAtPut(String selector, ProtoMethod method);
 	abstract boolean isClass();
 	abstract String packageAt(String name);
@@ -63,6 +64,10 @@ public abstract class ProtoObjectData {
 		protected ProtoMethod methodAt(String selector) {
 			throw new IllegalStateException("An instance doesn't have a method dictionary.");
 		}
+		
+		protected ProtoMethod[] methods() {
+			throw new IllegalStateException("An instance doesn't have a method dictionary.");
+		}
 
 		protected void methodAtPut(String selector, ProtoMethod method) {
 			throw new IllegalStateException("An instance can't have a method dictionary.");
@@ -107,6 +112,10 @@ public abstract class ProtoObjectData {
 			return methods.get(selector);
 		}
 
+		protected ProtoMethod[] methods() {
+			return methods.values().toArray(new ProtoMethod[methods.values().size()]);
+		}
+		
 		protected void methodAtPut(String selector, ProtoMethod method) {
 			// System.out.println("methodAtPut() " + selector + " " + method);
 			methods.put(selector, method);
