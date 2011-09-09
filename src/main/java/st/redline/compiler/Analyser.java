@@ -154,7 +154,7 @@ public class Analyser implements NodeVisitor {
 	}
 
 	private String createFullMethodName(String name) {
-		return packageName + File.separator + className + "$" + name;
+		return packageName + "." + className + "$" + name;
 	}
 
 	public void visit(UnarySelector unarySelector, String value, int line) {
