@@ -1,31 +1,11 @@
-/*
-Redline Smalltalk is licensed under the MIT License
-
-Redline Smalltalk Copyright (c) 2010 James C. Ladd
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the "Software"), to deal in the Software without restriction,
-including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
-and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial
-portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-Please see DEVELOPER-CERTIFICATE-OF-ORIGIN if you wish to contribute a patch to Redline Smalltalk.
-*/
+/* Redline Smalltalk, Copyright (c) James C. Ladd. All rights reserved. See LICENSE in the root of this distribution */
 package st.redline;
 
 import st.redline.compiler.AbstractMethod;
 import st.redline.compiler.MethodAnalyser;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -35,7 +15,8 @@ public class ProtoObject {
 	private static final Map<String, AbstractMethod> methodsToBeCompiled = new HashMap<String, AbstractMethod>();
 	private static final Map<String, ProtoObject> classRegistry = new HashMap<String, ProtoObject>();
 	private static final ThreadLocal<Stack<String>> packageRegistry = new ThreadLocal<Stack<String>>();
-	protected static final Map<String, String> packageMap = new HashMap<String, String>();	private static final Map<String, ProtoObject> symbols = new HashMap<String, ProtoObject>();
+	protected static final Map<String, String> packageMap = new HashMap<String, String>();
+	private static final Map<String, ProtoObject> symbols = new HashMap<String, ProtoObject>();
 
 	protected static ProtoObject instanceOfSmalltalk;
 	protected static ProtoObject instanceOfUndefinedObject;
@@ -44,7 +25,7 @@ public class ProtoObject {
 
 	private ProtoObjectData data;
 	private String name;
-	
+
 	public ProtoObject() {
 		this(true);
 	}
@@ -72,10 +53,14 @@ public class ProtoObject {
 	}
 
 	public String toString() {
-		if (name != null) return name;
-		if (cls() != null)
-			return super.toString() + "(" + String.valueOf(cls().name) + ")";
-		return super.toString();
+		if(!this.isClass() && javaValue() instanceof String) {
+			return (String)javaValue();
+		} else {
+			if (name != null) return name;
+			if (cls() != null)
+				return super.toString() + "(" + String.valueOf(cls().name) + ")";
+			return super.toString();
+		}
 	}
 
 	public static void registerMethodToBeCompiledAs(AbstractMethod method, String name) {
@@ -88,9 +73,13 @@ public class ProtoObject {
 		return create(receiver, "st.redline.Array");
 	}
 
+	private static ProtoObject createInteger(ProtoObject receiver) {
+		return create(receiver, "st.redline.Integer");
+	}
+
 	private static ProtoObject create(ProtoObject receiver, String name) {
 		ProtoObject cls = primitiveResolveObject(receiver, name);
-		// System.out.println(cls);
+//		System.out.println(cls);
 		return primitiveSend(cls, "new", null);
 	}
 
@@ -103,7 +92,7 @@ public class ProtoObject {
 
 	public static void primitiveCompileMethod(ProtoObject receiver, String fullMethodName, String methodName, String className, String packageName, int countOfArguments) {
 		// TODO.JCL clean this up.
-		System.out.println("primitiveCompileMethod() " + receiver + " " + fullMethodName + " " + methodName + " " + className + " " + packageName + " " + countOfArguments);
+//		System.out.println("primitiveCompileMethod() " + receiver + " " + fullMethodName + " " + methodName + " " + className + " " + packageName + " " + countOfArguments);
 		AbstractMethod methodToBeCompiled = methodsToBeCompiled.remove(fullMethodName);
 		if (methodToBeCompiled == null)
 			throw new IllegalStateException("Method to be compiled '" + fullMethodName + "' not found.");
@@ -125,7 +114,7 @@ public class ProtoObject {
 			stack = new Stack<String>();
 			packageRegistry.set(stack);
 		}
-		stack.push(packageName.replaceAll("\\" + File.separator, "."));
+		stack.push(packageName.replaceAll(File.separator, "."));
 	}
 
 	public static void primitivePackageRegistryRemove() {
@@ -198,6 +187,16 @@ public class ProtoObject {
 		return instance;
 	}
 
+	public static ProtoObject primitiveInteger(ProtoObject receiver, String value) {
+		return primitiveInteger(receiver, new BigDecimal(value));
+	}
+
+	public static ProtoObject primitiveInteger(ProtoObject receiver, BigDecimal value) {
+		ProtoObject integer = createInteger(receiver);
+		integer.javaValue(value);
+		return integer;
+	}
+
 	public static ProtoObject primitiveString(ProtoObject receiver, String value) {
 		ProtoObject stringClass = receiver.resolveObject("st.redline.String");  // <- should we do primitiveVariableAt so namespaces are used?
 		ProtoObject string = new ProtoObject(false);
@@ -214,7 +213,7 @@ public class ProtoObject {
 		method = methodFor(receiver.cls().superclass(), selector, methodForResult);
 		if (method != null)
 			return method.applyTo(receiver, methodForResult[0]);
-		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[] {});
+		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[]{});
 	}
 
 	public static ProtoObject primitiveSend(ProtoObject receiver, ProtoObject arg1, String selector, ProtoObject classMethodWasFoundIn) {
@@ -226,7 +225,43 @@ public class ProtoObject {
 		method = methodFor(receiver.cls().superclass(), selector, methodForResult);
 		if (method != null)
 			return method.applyTo(receiver, methodForResult[0], arg1);
-		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[] {arg1});
+		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[]{arg1});
+	}
+
+	public static ProtoObject primitiveSend(ProtoObject receiver, ProtoObject arg1, ProtoObject arg2, String selector, ProtoObject classMethodWasFoundIn) {
+//		System.out.println("primitiveSend " + receiver + " " + selector + " " + " " + classMethodWasFoundIn + " arg: " + arg1 );
+		ProtoMethod method = receiver.cls().methodAt(selector);
+		if (method != null)
+			return method.applyTo(receiver, receiver.cls(), arg1, arg2);
+		ProtoObject[] methodForResult = {null};
+		method = methodFor(receiver.cls().superclass(), selector, methodForResult);
+		if (method != null)
+			return method.applyTo(receiver, methodForResult[0], arg1, arg2);
+		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[]{arg1, arg2});
+	}
+
+	public static ProtoObject primitiveSend(ProtoObject receiver, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, String selector, ProtoObject classMethodWasFoundIn) {
+//		System.out.println("primitiveSend " + receiver + " " + selector + " " + " " + classMethodWasFoundIn + " arg: " + arg1 );
+		ProtoMethod method = receiver.cls().methodAt(selector);
+		if (method != null)
+			return method.applyTo(receiver, receiver.cls(), arg1, arg2, arg3);
+		ProtoObject[] methodForResult = {null};
+		method = methodFor(receiver.cls().superclass(), selector, methodForResult);
+		if (method != null)
+			return method.applyTo(receiver, methodForResult[0], arg1, arg2, arg3);
+		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[]{arg1, arg2, arg3});
+	}
+
+	public static ProtoObject primitiveSend(ProtoObject receiver, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, String selector, ProtoObject classMethodWasFoundIn) {
+//		System.out.println("primitiveSend " + receiver + " " + selector + " " + " " + classMethodWasFoundIn + " arg: " + arg1 );
+		ProtoMethod method = receiver.cls().methodAt(selector);
+		if (method != null)
+			return method.applyTo(receiver, receiver.cls(), arg1, arg2, arg3, arg4);
+		ProtoObject[] methodForResult = {null};
+		method = methodFor(receiver.cls().superclass(), selector, methodForResult);
+		if (method != null)
+			return method.applyTo(receiver, methodForResult[0], arg1, arg2, arg3, arg4);
+		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[]{arg1, arg2, arg3, arg4});
 	}
 
 	public static ProtoObject primitiveSend(ProtoObject receiver, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, String selector, ProtoObject classMethodWasFoundIn) {
@@ -237,7 +272,29 @@ public class ProtoObject {
 		method = methodFor(receiver.cls().superclass(), selector, methodForResult);
 		if (method != null)
 			return method.applyTo(receiver, methodForResult[0], arg1, arg2, arg3, arg4, arg5);
-		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[] {arg1, arg2, arg3, arg4, arg5});
+		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[]{arg1, arg2, arg3, arg4, arg5});
+	}
+
+	public static ProtoObject primitiveSend(ProtoObject receiver, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6, String selector, ProtoObject classMethodWasFoundIn) {
+		ProtoMethod method = receiver.cls().methodAt(selector);
+		if (method != null)
+			return method.applyTo(receiver, receiver.cls(), arg1, arg2, arg3, arg4, arg5, arg6);
+		ProtoObject[] methodForResult = {null};
+		method = methodFor(receiver.cls().superclass(), selector, methodForResult);
+		if (method != null)
+			return method.applyTo(receiver, methodForResult[0], arg1, arg2, arg3, arg4, arg5, arg6);
+		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[]{arg1, arg2, arg3, arg4, arg5, arg6});
+	}
+
+	public static ProtoObject primitiveSend(ProtoObject receiver, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6, ProtoObject arg7, String selector, ProtoObject classMethodWasFoundIn) {
+		ProtoMethod method = receiver.cls().methodAt(selector);
+		if (method != null)
+			return method.applyTo(receiver, receiver.cls(), arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		ProtoObject[] methodForResult = {null};
+		method = methodFor(receiver.cls().superclass(), selector, methodForResult);
+		if (method != null)
+			return method.applyTo(receiver, methodForResult[0], arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[]{arg1, arg2, arg3, arg4, arg5, arg6, arg7});
 	}
 
 	public static ProtoObject primitiveSuperSend(ProtoObject receiver, String selector, ProtoObject classMethodWasFoundIn) {
@@ -249,7 +306,7 @@ public class ProtoObject {
 		method = methodFor(classMethodWasFoundIn.superclass().superclass(), selector, methodForResult);
 		if (method != null)
 			return method.applyTo(receiver, methodForResult[0]);
-		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[] {});
+		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[]{});
 	}
 
 //	public ProtoObject ping() {
@@ -310,7 +367,7 @@ public class ProtoObject {
 	}
 
 	public static void primitivePackageAtPut(ProtoObject receiver, String name, String packageName) {
-		receiver.packageAtPut(name, packageName.replaceAll("/", "."));
+		receiver.packageAtPut(name, packageName);
 	}
 
 	protected ProtoObject loadObject(String name) {
@@ -379,15 +436,50 @@ public class ProtoObject {
 		return data.isClass();
 	}
 
-	public static ProtoObject primitive_70(ProtoObject receiver, ProtoObject clsMethodFoundIn, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5) {
+	public static ProtoObject primitive_70(ProtoObject receiver, ProtoObject clsMethodFoundIn, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6, ProtoObject arg7) {
 		// System.out.println("primitive_70() " + String.valueOf(receiver) + " " + String.valueOf(clsMethodFoundIn) + " " + String.valueOf(arg1));
 		// TODO.JCL - there is still more to do here - this works for now.
 		// basicNew
 		return new ProtoObject(receiver);
 	}
 
-	public static ProtoObject primitive_110(ProtoObject receiver, ProtoObject clsMethodFoundIn, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5) {
+	public static ProtoObject primitive_110(ProtoObject receiver, ProtoObject clsMethodFoundIn, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6, ProtoObject arg7) {
 		// ==
 		return (receiver == arg1) ? instanceOfTrue : instanceOfFalse;
+	}
+
+	public static ProtoObject primitive_21(ProtoObject receiver, ProtoObject clsMethodFoundIn, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6, ProtoObject arg7) {
+		// +
+		return primitiveInteger(receiver, ((BigDecimal) receiver.javaValue()).add((BigDecimal) arg1.javaValue()));
+	}
+
+	public static ProtoObject primitive_22(ProtoObject receiver, ProtoObject clsMethodFoundIn, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6, ProtoObject arg7) {
+		// -
+		return primitiveInteger(receiver, ((BigDecimal) receiver.javaValue()).subtract((BigDecimal) arg1.javaValue()));
+	}
+
+	public static ProtoObject primitive_23(ProtoObject receiver, ProtoObject clsMethodFoundIn, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6, ProtoObject arg7) {
+		// <
+		return (((BigDecimal) receiver.javaValue()).compareTo((BigDecimal) arg1.javaValue()) < 0) ? instanceOfTrue : instanceOfFalse;
+	}
+
+	public static ProtoObject primitive_24(ProtoObject receiver, ProtoObject clsMethodFoundIn, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6, ProtoObject arg7) {
+		// >
+		return (((BigDecimal) receiver.javaValue()).compareTo((BigDecimal) arg1.javaValue()) > 0) ? instanceOfTrue : instanceOfFalse;
+	}
+
+	public static ProtoObject primitive_25(ProtoObject receiver, ProtoObject clsMethodFoundIn, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6, ProtoObject arg7) {
+		// <=
+		return (((BigDecimal) receiver.javaValue()).compareTo((BigDecimal) arg1.javaValue()) <= 0) ? instanceOfTrue : instanceOfFalse;
+	}
+
+	public static ProtoObject primitive_26(ProtoObject receiver, ProtoObject clsMethodFoundIn, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6, ProtoObject arg7) {
+		// >=
+		return (((BigDecimal) receiver.javaValue()).compareTo((BigDecimal) arg1.javaValue()) >= 0) ? instanceOfTrue : instanceOfFalse;
+	}
+
+	public static ProtoObject primitive_27(ProtoObject receiver, ProtoObject clsMethodFoundIn, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6, ProtoObject arg7) {
+		// ==
+		return (receiver.javaValue().equals(arg1.javaValue())) ? instanceOfTrue : instanceOfFalse;
 	}
 }

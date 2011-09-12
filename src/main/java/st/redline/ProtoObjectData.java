@@ -1,3 +1,4 @@
+/* Redline Smalltalk, Copyright (c) James C. Ladd. All rights reserved. See LICENSE in the root of this distribution */
 package st.redline;
 
 import java.util.HashMap;
@@ -13,8 +14,8 @@ public abstract class ProtoObjectData {
 	abstract Object javaValue();
 	abstract void superclass(ProtoObject superclass);
 	abstract ProtoObject superclass();
-	abstract ProtoMethod methodAt(String selector);
 	abstract ProtoMethod[] methods();
+	abstract ProtoMethod methodAt(String selector);
 	abstract void methodAtPut(String selector, ProtoMethod method);
 	abstract boolean isClass();
 	abstract String packageAt(String name);
@@ -41,6 +42,10 @@ public abstract class ProtoObjectData {
 
 		private Object javaValue;
 
+		protected ProtoMethod[] methods() {
+			throw new IllegalStateException("An instance doesn't have a method dictionary.");
+		}
+		
 		protected void javaValue(Object value) {
 			javaValue = value;
 		}
@@ -64,10 +69,6 @@ public abstract class ProtoObjectData {
 		protected ProtoMethod methodAt(String selector) {
 			throw new IllegalStateException("An instance doesn't have a method dictionary.");
 		}
-		
-		protected ProtoMethod[] methods() {
-			throw new IllegalStateException("An instance doesn't have a method dictionary.");
-		}
 
 		protected void methodAtPut(String selector, ProtoMethod method) {
 			throw new IllegalStateException("An instance can't have a method dictionary.");
@@ -88,6 +89,10 @@ public abstract class ProtoObjectData {
 		private Map<String, ProtoMethod> methods = new HashMap<String, ProtoMethod>();
 		private Map<String, String> packages;
 
+		protected ProtoMethod[] methods() {
+			return methods.values().toArray(new ProtoMethod[methods.values().size()]);
+		}
+		
 		protected void javaValue(Object value) {
 			throw new IllegalStateException("A Class can't have a javaValue.");
 		}
@@ -112,10 +117,6 @@ public abstract class ProtoObjectData {
 			return methods.get(selector);
 		}
 
-		protected ProtoMethod[] methods() {
-			return methods.values().toArray(new ProtoMethod[methods.values().size()]);
-		}
-		
 		protected void methodAtPut(String selector, ProtoMethod method) {
 			// System.out.println("methodAtPut() " + selector + " " + method);
 			methods.put(selector, method);
