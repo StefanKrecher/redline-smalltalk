@@ -1,6 +1,6 @@
+/* Redline Smalltalk, Copyright (c) James C. Ladd. All rights reserved. See LICENSE in the root of this distribution */
 package st.redline.compiler;
 
-import antlr.CharQueue;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -23,6 +23,8 @@ public class ClassBytecodeWriter implements Opcodes {
 	private static final String CONSTRUCT_SIGNATURE = "(Lst/redline/ProtoObject;Lst/redline/ProtoObject;)Lst/redline/ProtoObject;";
 	private static final String PRIMITIVE_SYMBOL = "primitiveSymbol";
 	private static final String PRIMITIVE_SYMBOL_SIGNATURE = "(Lst/redline/ProtoObject;Ljava/lang/String;)Lst/redline/ProtoObject;";
+	private static final String PRIMITIVE_INTEGER = "primitiveInteger";
+	private static final String PRIMITIVE_INTEGER_SIGNATURE = "(Lst/redline/ProtoObject;Ljava/lang/String;)Lst/redline/ProtoObject;";
 	private static final String PRIMITIVE_STRING = "primitiveString";
 	private static final String PRIMITIVE_STRING_SIGNATURE = "(Lst/redline/ProtoObject;Ljava/lang/String;)Lst/redline/ProtoObject;";
 	private static final String PRIMITIVE_VARIABLE_AT = "primitiveVariableAt";
@@ -34,6 +36,8 @@ public class ClassBytecodeWriter implements Opcodes {
 		"(Lst/redline/ProtoObject;Lst/redline/ProtoObject;Lst/redline/ProtoObject;Lst/redline/ProtoObject;Ljava/lang/String;Lst/redline/ProtoObject;)Lst/redline/ProtoObject;",
 		"(Lst/redline/ProtoObject;Lst/redline/ProtoObject;Lst/redline/ProtoObject;Lst/redline/ProtoObject;Lst/redline/ProtoObject;Ljava/lang/String;Lst/redline/ProtoObject;)Lst/redline/ProtoObject;",
 		"(Lst/redline/ProtoObject;Lst/redline/ProtoObject;Lst/redline/ProtoObject;Lst/redline/ProtoObject;Lst/redline/ProtoObject;Lst/redline/ProtoObject;Ljava/lang/String;Lst/redline/ProtoObject;)Lst/redline/ProtoObject;",
+		"(Lst/redline/ProtoObject;Lst/redline/ProtoObject;Lst/redline/ProtoObject;Lst/redline/ProtoObject;Lst/redline/ProtoObject;Lst/redline/ProtoObject;Lst/redline/ProtoObject;Ljava/lang/String;Lst/redline/ProtoObject;)Lst/redline/ProtoObject;",
+		"(Lst/redline/ProtoObject;Lst/redline/ProtoObject;Lst/redline/ProtoObject;Lst/redline/ProtoObject;Lst/redline/ProtoObject;Lst/redline/ProtoObject;Lst/redline/ProtoObject;Lst/redline/ProtoObject;Ljava/lang/String;Lst/redline/ProtoObject;)Lst/redline/ProtoObject;",
 	};
 
 	protected final String className;
@@ -53,7 +57,6 @@ public class ClassBytecodeWriter implements Opcodes {
 
 	private void initialize() {
 		cw = verbose() ? tracingClassWriter() : nonTracingClassWriter();
-//		fullyQualifiedClassName = packageName.length() > 0 ? packageName + File.separator + className : className;
 		fullyQualifiedClassName = (packageName.length() > 0 ? packageName + "." + className : className).replaceAll("\\.", "/");
 	}
 
@@ -187,6 +190,10 @@ public class ClassBytecodeWriter implements Opcodes {
 		mv.visitVarInsn(ALOAD, 1);
 	}
 
+	public void stackPushLocal(int index) {
+		mv.visitVarInsn(ALOAD, index);
+	}
+
 	public void stackPushClassMethodWasFoundIn() {
 		mv.visitVarInsn(ALOAD, 2);
 	}
@@ -261,6 +268,12 @@ public class ClassBytecodeWriter implements Opcodes {
 		mv.visitMethodInsn(INVOKESTATIC, PROTOOBJECT, PRIMITIVE_SYMBOL, PRIMITIVE_SYMBOL_SIGNATURE);
 	}
 
+	public void callPrimitiveInteger(String value, int line) {
+		stackPushReceiver(line);
+		stackPushLiteral(value);
+		mv.visitMethodInsn(INVOKESTATIC, PROTOOBJECT, PRIMITIVE_INTEGER, PRIMITIVE_INTEGER_SIGNATURE);
+	}
+	
 	public void callPrimitiveString(String value, int line) {
 		stackPushReceiver(line);
 		stackPushLiteral(value);

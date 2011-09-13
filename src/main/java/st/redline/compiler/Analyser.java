@@ -1,31 +1,10 @@
-/*
-Redline Smalltalk is licensed under the MIT License
-
-Redline Smalltalk Copyright (c) 2010 James C. Ladd
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the "Software"), to deal in the Software without restriction,
-including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
-and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial
-portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-Please see DEVELOPER-CERTIFICATE-OF-ORIGIN if you wish to contribute a patch to Redline Smalltalk.
-*/
+/* Redline Smalltalk, Copyright (c) James C. Ladd. All rights reserved. See LICENSE in the root of this distribution */
 package st.redline.compiler;
-
-import st.redline.ProtoObject;
 
 import java.io.File;
 import java.util.List;
+
+import st.redline.ProtoObject;
 
 public class Analyser implements NodeVisitor {
 
@@ -88,13 +67,29 @@ public class Analyser implements NodeVisitor {
 	public void visit(VariableName variableName, String value, int line) {
 		if (isTemporary(value)) {
 			throw new IllegalStateException("TODO - handle temporary variable.");
-		} else  {
+		} else {
 			if (variableName.isOnLoadSideOfExpression()) {
-				classBytecodeWriter.callPrimitiveVariableAt(value, line, true);
+				if (isMethodArgument(value)) {
+					loadMethodArgument(value);
+				} else {
+					classBytecodeWriter.callPrimitiveVariableAt(value, line, true);
+				}
 			} else {
-				throw new IllegalStateException("TODO - store of variable.");
+				if (isMethodArgument(value)) {
+					throw new IllegalStateException("You can't store into method argument '" + value + "'.");
+				} else {
+					throw new IllegalStateException("TODO - handle store of variable.");
+				}
 			}
 		}
+	}
+
+	protected void loadMethodArgument(String value) {
+		throw new IllegalStateException("Subclass should implement.");
+	}
+
+	protected boolean isMethodArgument(String value) {
+		return false;
 	}
 
 	private boolean isTemporary(String name) {
@@ -184,7 +179,16 @@ public class Analyser implements NodeVisitor {
 			classBytecodeWriter.stackPop();
 	}
 
+	public void visit(Cascade cascade) {
+		classBytecodeWriter.stackDuplicate();
+	}
+
+	public void visitEnd(Cascade cascade) {
+		classBytecodeWriter.stackPop();
+	}
+
 	public void visit(UnarySelectorMessageElement unarySelectorMessageElement, String value, int line) {
+		classBytecodeWriter.unarySend(value, line, sendToSuper);
 	}
 
 	public void visit(BinarySelectorMessageElement binarySelectorMessageElement, String value, int line, UnaryObjectDescription unaryObjectDescription) {
@@ -271,6 +275,7 @@ public class Analyser implements NodeVisitor {
 	}
 
 	public void visit(LiteralNumber literalNumber, String value, int line) {
+		classBytecodeWriter.callPrimitiveInteger(literalNumber.value(), line);
 	}
 
 	public void visit(Block block) {
