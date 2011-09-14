@@ -1,4 +1,25 @@
-/* Redline Smalltalk, Copyright (c) James C. Ladd. All rights reserved. See LICENSE in the root of this distribution */
+/*
+Redline Smalltalk is licensed under the MIT License
+
+Redline Smalltalk Copyright (c) 2010 James C. Ladd
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+and associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Please see DEVELOPER-CERTIFICATE-OF-ORIGIN if you wish to contribute a patch to Redline Smalltalk.
+*/
 package st.redline;
 
 import st.redline.bootstrap.ClassSubclassMethod;
@@ -256,11 +277,13 @@ public class Bootstrapper {
 
 	private void mapPackages() {
 		ProtoObject.packageMap.put("ProtoObject", "st.redline.ProtoObject");
-		for (String sourceFile : SourceFileFinder.findIn("st" + File.separator + "redline")) {
+		for (String sourceFile : SourceFileFinder.findIn("st/redline")) {
 			String packageName = sourceFile.substring(0, sourceFile.lastIndexOf(File.separator));
 			String name = sourceFile.substring(packageName.length() + 1, sourceFile.lastIndexOf("."));
-//			System.out.println(packageName + " " + name + " " + packageName.replaceAll(File.separator, ".") + "." + name);
-			ProtoObject.packageMap.put(name, packageName.replaceAll("\\" + File.separator, ".") + "." + name);
+			String realName = packageName.replaceAll("\\" + File.separator, ".") + "." + name;
+			realName = realName.replaceAll("lltalk.src.main.smalltalk.", ""); // TODO there must be a better way ...
+//			System.out.println(packageName + " " + name + " " + realName);
+			ProtoObject.packageMap.put(name, realName);
 		}
 	}
 }

@@ -9,9 +9,3 @@ Object < #Example
 	
 - testFalse
 	^ false
-	
-- testString
-	^'Buh!'
-	
-- helloWorld: aName
-	^aName

@@ -114,7 +114,7 @@ public class ProtoObject {
 			stack = new Stack<String>();
 			packageRegistry.set(stack);
 		}
-		stack.push(packageName.replaceAll("/", "."));
+		stack.push(packageName.replaceAll(File.separator, "."));
 	}
 
 	public static void primitivePackageRegistryRemove() {
@@ -367,9 +367,9 @@ public class ProtoObject {
 	}
 
 	public static void primitivePackageAtPut(ProtoObject receiver, String name, String packageName) {
-		receiver.packageAtPut(name, packageName.replaceAll("/", "."));
+		receiver.packageAtPut(name, packageName);
 	}
-	
+
 	protected ProtoObject loadObject(String name) {
 		try {
 			return (ProtoObject) Class.forName(name, true, classLoader()).newInstance();

@@ -20,9 +20,10 @@ public class SticTest {
 	
 	@Test
 	public void testClassAndInstanceMethods() throws Exception {
-		CommandLine commandLine = new CommandLine(new String[] { "-v" });
+		CommandLine commandLine = new CommandLine(new String[] { "-v",
+				"st.redline.Example" });
 		Stic stic = new Stic(commandLine);
-		ProtoObject poExampleClass = stic.invoke("st.redline.Example");
+		ProtoObject poExampleClass = stic.invoke((String) commandLine.arguments().get(0));
 
 		assertEquals("st.redline.Example", poExampleClass.toString());
 
@@ -55,37 +56,6 @@ public class SticTest {
 
 		assertTrue(poYourself.isClass());
 		assertEquals("st.redline.Example", poYourself.toString());
-		
-		System.out.println(poExampleClass);
-	}
-	
-	@Test @Ignore
-	public void testStringData() throws Exception {
-		CommandLine commandLine = new CommandLine(new String[] { "-v",
-		"st.redline.Example" });
-		Stic stic = new Stic(commandLine);
-		ProtoObject poExampleClass = stic.invoke((String) commandLine.arguments().get(0));
-		
-		assertEquals("st.redline.Example", poExampleClass.toString());
-		
-		ProtoObjectData poExampleClassData = poExampleClass.getData();
-		
-		assertTrue(poExampleClassData.isClass());
-				
-		ProtoObject poExampleInstance = ProtoObject.primitiveSend(poExampleClass, "new", poExampleClass);
-		
-		ProtoObject poString = ProtoObject.primitiveSend(poExampleInstance, "testString", poExampleInstance);
-		assertEquals("String", poString.cls().toString());
-		
-		assertEquals("Buh!", poString.javaValue());
-		
-		ProtoObject poArgumentClass = stic.invoke("st.redline.String");
-		ProtoObject poArgumentInstance = ProtoObject.primitiveSend(poArgumentClass, "new", poArgumentClass);
-		poArgumentInstance.javaValue("Stefan");
-		poString = ProtoObject.primitiveSend(poExampleInstance, poArgumentInstance, "helloWorld:", poExampleInstance);
-		assertEquals("String", poString.cls().toString());
-		
-		assertEquals("Buh!", poString.javaValue());
 		
 		System.out.println(poExampleClass);
 	}
