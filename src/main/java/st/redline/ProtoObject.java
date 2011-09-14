@@ -421,8 +421,9 @@ public class ProtoObject {
 	}
 
 	private ProtoObject resolveObject(String name) {
-		if (classRegistry.containsKey(name))
-			return classRegistry.get(name);
+		if (classRegistry.containsKey(name.replaceAll("/", "."))) {
+			return classRegistry.get(name.replaceAll("/", "."));
+		}
 
 		if (Character.isUpperCase(name.charAt(0))) {
 			String fullyQualifiedName = ProtoObject.primitivePackageAt(this, name);
@@ -455,7 +456,7 @@ public class ProtoObject {
 
 	protected ProtoObject loadObject(String name) {
 		try {
-			return (ProtoObject) Class.forName(name, true, classLoader()).newInstance();
+			return (ProtoObject) Class.forName(name.replaceAll("/","."), true, classLoader()).newInstance();
 		} catch (Exception e) {
 			throw RedlineException.withCause(e);
 		}

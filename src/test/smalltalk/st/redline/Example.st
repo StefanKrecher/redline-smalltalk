@@ -1,5 +1,10 @@
 
-Object < #Example
+Object subclass: #Example
+       instanceVariableNames: ''
+       classVariableNames: ''
+       classInstanceVariableNames: ''
+       poolDictionaries: ''
+       category: ''.
 
 + yourself
    ^ self.
