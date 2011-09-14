@@ -77,6 +77,10 @@ public class ProtoObject {
 		return create(receiver, "st.redline.Integer");
 	}
 
+	private static ProtoObject createCharacter(ProtoObject receiver) {
+		return create(receiver, "st.redline.Character");
+	}
+
 	private static ProtoObject create(ProtoObject receiver, String name) {
 		ProtoObject cls = primitiveResolveObject(receiver, name);
 //		System.out.println(cls);
@@ -114,7 +118,7 @@ public class ProtoObject {
 			stack = new Stack<String>();
 			packageRegistry.set(stack);
 		}
-		stack.push(packageName.replaceAll(File.separator, "."));
+		stack.push(packageName.replaceAll("\\" + File.separatorChar, "."));
 	}
 
 	public static void primitivePackageRegistryRemove() {
@@ -195,6 +199,12 @@ public class ProtoObject {
 		ProtoObject integer = createInteger(receiver);
 		integer.javaValue(value);
 		return integer;
+	}
+
+	public static ProtoObject primitiveCharacter(ProtoObject receiver, String value) {
+		ProtoObject character = createCharacter(receiver);
+		character.javaValue(value);
+		return character;
 	}
 
 	public static ProtoObject primitiveString(ProtoObject receiver, String value) {
@@ -309,10 +319,83 @@ public class ProtoObject {
 		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[]{});
 	}
 
-//	public ProtoObject ping() {
-//		// System.out.println("here1 " + this + " " + this.cls() + " Proto  " + classRegistry.get("ProtoObject") + " symbol " + classRegistry.get("Symbol"));
-//		return this;
-//	}
+	public static ProtoObject primitiveSuperSend(ProtoObject receiver, ProtoObject arg1, String selector, ProtoObject classMethodWasFoundIn) {
+//		System.out.println("primitiveSuperSend " + receiver + " " + selector + " " + " " + classMethodWasFoundIn + " arg: " + arg1 );
+		ProtoMethod method = classMethodWasFoundIn.superclass().methodAt(selector);
+		if (method != null)
+			return method.applyTo(receiver, classMethodWasFoundIn.superclass(), arg1);
+		ProtoObject[] methodForResult = {null};
+		method = methodFor(classMethodWasFoundIn.superclass().superclass(), selector, methodForResult);
+		if (method != null)
+			return method.applyTo(receiver, methodForResult[0], arg1);
+		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[]{arg1});
+	}
+
+	public static ProtoObject primitiveSuperSend(ProtoObject receiver, ProtoObject arg1, ProtoObject arg2, String selector, ProtoObject classMethodWasFoundIn) {
+		ProtoMethod method = classMethodWasFoundIn.superclass().methodAt(selector);
+		if (method != null)
+			return method.applyTo(receiver, classMethodWasFoundIn.superclass(), arg1, arg2);
+		ProtoObject[] methodForResult = {null};
+		method = methodFor(classMethodWasFoundIn.superclass().superclass(), selector, methodForResult);
+		if (method != null)
+			return method.applyTo(receiver, methodForResult[0], arg1, arg2);
+		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[]{arg1, arg2});
+	}
+
+	public static ProtoObject primitiveSuperSend(ProtoObject receiver, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, String selector, ProtoObject classMethodWasFoundIn) {
+		ProtoMethod method = classMethodWasFoundIn.superclass().methodAt(selector);
+		if (method != null)
+			return method.applyTo(receiver, classMethodWasFoundIn.superclass(), arg1, arg2, arg3);
+		ProtoObject[] methodForResult = {null};
+		method = methodFor(classMethodWasFoundIn.superclass().superclass(), selector, methodForResult);
+		if (method != null)
+			return method.applyTo(receiver, methodForResult[0], arg1, arg2, arg3);
+		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[]{arg1, arg2, arg3});
+	}
+
+	public static ProtoObject primitiveSuperSend(ProtoObject receiver, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, String selector, ProtoObject classMethodWasFoundIn) {
+		ProtoMethod method = classMethodWasFoundIn.superclass().methodAt(selector);
+		if (method != null)
+			return method.applyTo(receiver, classMethodWasFoundIn.superclass(), arg1, arg2, arg3, arg4);
+		ProtoObject[] methodForResult = {null};
+		method = methodFor(classMethodWasFoundIn.superclass().superclass(), selector, methodForResult);
+		if (method != null)
+			return method.applyTo(receiver, methodForResult[0], arg1, arg2, arg3, arg4);
+		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[]{arg1, arg2, arg3, arg4});
+	}
+
+	public static ProtoObject primitiveSuperSend(ProtoObject receiver, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, String selector, ProtoObject classMethodWasFoundIn) {
+		ProtoMethod method = classMethodWasFoundIn.superclass().methodAt(selector);
+		if (method != null)
+			return method.applyTo(receiver, classMethodWasFoundIn.superclass(), arg1, arg2, arg3, arg4, arg5);
+		ProtoObject[] methodForResult = {null};
+		method = methodFor(classMethodWasFoundIn.superclass().superclass(), selector, methodForResult);
+		if (method != null)
+			return method.applyTo(receiver, methodForResult[0], arg1, arg2, arg3, arg4, arg5);
+		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[]{arg1, arg2, arg3, arg4, arg5});
+	}
+
+	public static ProtoObject primitiveSuperSend(ProtoObject receiver, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6, String selector, ProtoObject classMethodWasFoundIn) {
+		ProtoMethod method = classMethodWasFoundIn.superclass().methodAt(selector);
+		if (method != null)
+			return method.applyTo(receiver, classMethodWasFoundIn.superclass(), arg1, arg2, arg3, arg4, arg5, arg6);
+		ProtoObject[] methodForResult = {null};
+		method = methodFor(classMethodWasFoundIn.superclass().superclass(), selector, methodForResult);
+		if (method != null)
+			return method.applyTo(receiver, methodForResult[0], arg1, arg2, arg3, arg4, arg5, arg6);
+		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[]{arg1, arg2, arg3, arg4, arg5, arg6});
+	}
+
+	public static ProtoObject primitiveSuperSend(ProtoObject receiver, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6, ProtoObject arg7, String selector, ProtoObject classMethodWasFoundIn) {
+		ProtoMethod method = classMethodWasFoundIn.superclass().methodAt(selector);
+		if (method != null)
+			return method.applyTo(receiver, classMethodWasFoundIn.superclass(), arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		ProtoObject[] methodForResult = {null};
+		method = methodFor(classMethodWasFoundIn.superclass().superclass(), selector, methodForResult);
+		if (method != null)
+			return method.applyTo(receiver, methodForResult[0], arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		return sendDoesNotUnderstand(receiver, selector, new ProtoObject[]{arg1, arg2, arg3, arg4, arg5, arg6, arg7});
+	}
 
 	private static ProtoObject sendDoesNotUnderstand(ProtoObject receiver, String selector, ProtoObject[] arguments) {
 		throw RedlineException.withMessage("TODO -  need to implement send of doesNotUnderstand - '" + selector + "' " + receiver);
@@ -481,5 +564,51 @@ public class ProtoObject {
 	public static ProtoObject primitive_27(ProtoObject receiver, ProtoObject clsMethodFoundIn, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6, ProtoObject arg7) {
 		// ==
 		return (receiver.javaValue().equals(arg1.javaValue())) ? instanceOfTrue : instanceOfFalse;
+	}
+
+	public static ProtoObject primitive_60(ProtoObject receiver, ProtoObject clsMethodFoundIn, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6, ProtoObject arg7) {
+		// Return the object at a position in an indexable object/collection
+
+		int position = ((BigDecimal)arg1.javaValue()).intValue();
+		ProtoObject[] array = ((ProtoObject[])receiver.javaValue());
+
+		return array[position];
+	}
+
+	public static ProtoObject primitive_61(ProtoObject receiver, ProtoObject clsMethodFoundIn, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6, ProtoObject arg7) {
+		// Put an object into an indexable object/collection at a specified position
+
+		int position = ((BigDecimal)arg1.javaValue()).intValue();
+		ProtoObject[] array = ((ProtoObject[])receiver.javaValue());
+
+		array[position] = arg2;
+
+		return receiver;
+	}
+
+	public static ProtoObject primitive_62(ProtoObject receiver, ProtoObject clsMethodFoundIn, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6, ProtoObject arg7) {
+		// Return the size of the array in the receiver arg
+
+		int size = ((ProtoObject[])receiver.javaValue()).length;
+
+		return primitiveInteger(receiver, new BigDecimal(size));
+	}
+
+	public static ProtoObject primitive_71(ProtoObject receiver, ProtoObject clsMethodFoundIn, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6, ProtoObject arg7) {
+		// Create a new array
+		ProtoObject array = createArray(receiver);
+
+		BigDecimal size = (BigDecimal)arg1.javaValue();
+
+		ProtoObject[] javaArray = new ProtoObject[size.intValue()];
+
+		array.javaValue(javaArray);
+		
+		return array;
+	}
+
+	public static ProtoObject primitive_111(ProtoObject receiver, ProtoObject clsMethodFoundIn, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6, ProtoObject arg7) {
+		// Object>>class
+		return receiver.cls();
 	}
 }
