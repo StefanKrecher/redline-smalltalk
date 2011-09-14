@@ -14,7 +14,6 @@ public abstract class ProtoObjectData {
 	abstract Object javaValue();
 	abstract void superclass(ProtoObject superclass);
 	abstract ProtoObject superclass();
-	abstract ProtoMethod[] methods();
 	abstract ProtoMethod methodAt(String selector);
 	abstract void methodAtPut(String selector, ProtoMethod method);
 	abstract boolean isClass();
@@ -42,10 +41,6 @@ public abstract class ProtoObjectData {
 
 		private Object javaValue;
 
-		protected ProtoMethod[] methods() {
-			throw new IllegalStateException("An instance doesn't have a method dictionary.");
-		}
-		
 		protected void javaValue(Object value) {
 			javaValue = value;
 		}
@@ -89,10 +84,6 @@ public abstract class ProtoObjectData {
 		private Map<String, ProtoMethod> methods = new HashMap<String, ProtoMethod>();
 		private Map<String, String> packages;
 
-		protected ProtoMethod[] methods() {
-			return methods.values().toArray(new ProtoMethod[methods.values().size()]);
-		}
-		
 		protected void javaValue(Object value) {
 			throw new IllegalStateException("A Class can't have a javaValue.");
 		}

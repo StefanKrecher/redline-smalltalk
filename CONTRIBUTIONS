@@ -9,13 +9,4 @@ You can even remove your .iml file now, as IntelliJ can natively load any Maven 
 Builds the grammars, and builds a ready-to-package binary distribution in target/redline-deploy
 
 Signed-off-by: Robert A Roland rob.roland@gmail.com
-----------
-Maven + Eclipse support
-Source code is now generated to /src/main/generated-sources so you don't need a dependency to the jar-File in target/redline-deploy
-(you only need to deal with deal with maven-dependencies and  have no error-markers in eclipse anymore
 
-Resolved some platform-specific issues
-running redline in an windows-environment caused errors related to path separators ("\" vs. "/"). 
-There were also some bugs in the classloader, regarding package-naming
-
-Signed-off-by: Stefan Krecher stefan.krecher@googlemail.com

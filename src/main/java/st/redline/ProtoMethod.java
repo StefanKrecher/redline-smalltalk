@@ -1,25 +1,4 @@
-/*
-Redline Smalltalk is licensed under the MIT License
-
-Redline Smalltalk Copyright (c) 2010 James C. Ladd
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the "Software"), to deal in the Software without restriction,
-including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
-and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial
-portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-Please see DEVELOPER-CERTIFICATE-OF-ORIGIN if you wish to contribute a patch to Redline Smalltalk.
-*/
+/* Redline Smalltalk, Copyright (c) James C. Ladd. All rights reserved. See LICENSE in the root of this distribution */
 package st.redline;
 
 public class ProtoMethod extends ProtoObject {
@@ -40,8 +19,27 @@ public class ProtoMethod extends ProtoObject {
 		throw subclassShouldHaveImplemented(1);
 	}
 
+	public ProtoObject applyTo(ProtoObject receiver, ProtoObject cls, ProtoObject arg1, ProtoObject arg2) {
+		throw subclassShouldHaveImplemented(2);
+	}
+
+	public ProtoObject applyTo(ProtoObject receiver, ProtoObject cls, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3) {
+		throw subclassShouldHaveImplemented(3);
+	}
+
+	public ProtoObject applyTo(ProtoObject receiver, ProtoObject cls, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4) {
+		throw subclassShouldHaveImplemented(4);
+	}
+
 	public ProtoObject applyTo(ProtoObject receiver, ProtoObject cls, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5) {
-		System.out.println("applyTo(5) " + receiver + " " + arg1);
 		throw subclassShouldHaveImplemented(5);
+	}
+
+	public ProtoObject applyTo(ProtoObject receiver, ProtoObject cls, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6) {
+		throw subclassShouldHaveImplemented(6);
+	}
+
+	public ProtoObject applyTo(ProtoObject receiver, ProtoObject cls, ProtoObject arg1, ProtoObject arg2, ProtoObject arg3, ProtoObject arg4, ProtoObject arg5, ProtoObject arg6, ProtoObject arg7) {
+		throw subclassShouldHaveImplemented(7);
 	}
 }

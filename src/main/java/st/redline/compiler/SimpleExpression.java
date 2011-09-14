@@ -1,31 +1,12 @@
-/*
-Redline Smalltalk is licensed under the MIT License
-
-Redline Smalltalk Copyright (c) 2010 James C. Ladd
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the "Software"), to deal in the Software without restriction,
-including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
-and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial
-portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-Please see DEVELOPER-CERTIFICATE-OF-ORIGIN if you wish to contribute a patch to Redline Smalltalk.
-*/
+/* Redline Smalltalk, Copyright (c) James C. Ladd. All rights reserved. See LICENSE in the root of this distribution */
 package st.redline.compiler;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SimpleExpression implements Expression {
+
+	private static final Cascade cascade = new Cascade();
 
 	private Primary primary;
 	private MessageExpression messageExpression;
@@ -73,8 +54,15 @@ public class SimpleExpression implements Expression {
 		primary.accept(visitor);
 		if (messageExpression != null)
 			messageExpression.accept(visitor);
-		for (MessageElement messageElement : messageElements)
-			messageElement.accept(visitor);
+		// TODO.jcl WARNING: because we issue a DUP on cascade.begin() and we don't always do a POP on cascade.end()
+		// it is possible for the stack to be unbalanced. Checking with ASM people if this is going to be a problem.
+		int countOfMessageElements = messageElements.size();
+		for (int index = 0; index < countOfMessageElements; index++) {
+			cascade.begin(visitor);
+			messageElements.get(index).accept(visitor);
+			if (index + 1 < countOfMessageElements)
+				cascade.end(visitor);
+		}
 		visitor.visitEnd(this);
 	}
 }

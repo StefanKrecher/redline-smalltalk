@@ -6,7 +6,10 @@ src/main/grammar/output
 src/main/grammar/Smalltalk.tokens
 src/main/grammar/*.java
 target/
+.cache
+.cache/*
 .settings
+.settings/*
 .project
 .classpath
 redline-smalltalk.iml
@@ -14,4 +17,10 @@ redline.iml
 redline.ipr
 redline.iws
 .idea/
-
+nbactions.xml
+*~
+*.swp
+*.bak
++*#
++.#*
+.DS_Store

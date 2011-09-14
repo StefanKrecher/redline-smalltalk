@@ -1,31 +1,10 @@
-/*
-Redline Smalltalk is licensed under the MIT License
-
-Redline Smalltalk Copyright (c) 2010 James C. Ladd
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the "Software"), to deal in the Software without restriction,
-including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
-and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial
-portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-Please see DEVELOPER-CERTIFICATE-OF-ORIGIN if you wish to contribute a patch to Redline Smalltalk.
-*/
+/* Redline Smalltalk, Copyright (c) James C. Ladd. All rights reserved. See LICENSE in the root of this distribution */
 package st.redline.compiler;
-
-import st.redline.ProtoObject;
 
 import java.io.File;
 import java.util.List;
+
+import st.redline.ProtoObject;
 
 public class Analyser implements NodeVisitor {
 
@@ -88,13 +67,29 @@ public class Analyser implements NodeVisitor {
 	public void visit(VariableName variableName, String value, int line) {
 		if (isTemporary(value)) {
 			throw new IllegalStateException("TODO - handle temporary variable.");
-		} else  {
+		} else {
 			if (variableName.isOnLoadSideOfExpression()) {
-				classBytecodeWriter.callPrimitiveVariableAt(value, line, true);
+				if (isMethodArgument(value)) {
+					loadMethodArgument(value);
+				} else {
+					classBytecodeWriter.callPrimitiveVariableAt(value, line, true);
+				}
 			} else {
-				throw new IllegalStateException("TODO - store of variable.");
+				if (isMethodArgument(value)) {
+					throw new IllegalStateException("You can't store into method argument '" + value + "'.");
+				} else {
+					throw new IllegalStateException("TODO - handle store of variable.");
+				}
 			}
 		}
+	}
+
+	protected void loadMethodArgument(String value) {
+		throw new IllegalStateException("Subclass should implement.");
+	}
+
+	protected boolean isMethodArgument(String value) {
+		return false;
 	}
 
 	private boolean isTemporary(String name) {
@@ -154,7 +149,7 @@ public class Analyser implements NodeVisitor {
 	}
 
 	private String createFullMethodName(String name) {
-		return packageName + "." + className + "$" + name;
+		return packageName + File.separator + className + "$" + name;
 	}
 
 	public void visit(UnarySelector unarySelector, String value, int line) {
@@ -168,9 +163,11 @@ public class Analyser implements NodeVisitor {
 	}
 
 	public void visit(Keyword keyword, String value, int line) {
+		System.out.println("TODO Keyword() " + value);
 	}
 
 	public void visit(AssignmentExpression assignmentExpression) {
+		System.out.println("TODO AssignmentExpression() " + assignmentExpression);
 	}
 
 	public void visit(SimpleExpression simpleExpression) {
@@ -184,28 +181,44 @@ public class Analyser implements NodeVisitor {
 			classBytecodeWriter.stackPop();
 	}
 
+	public void visit(Cascade cascade) {
+		classBytecodeWriter.stackDuplicate();
+	}
+
+	public void visitEnd(Cascade cascade) {
+		classBytecodeWriter.stackPop();
+	}
+
 	public void visit(UnarySelectorMessageElement unarySelectorMessageElement, String value, int line) {
+		classBytecodeWriter.unarySend(value, line, sendToSuper);
 	}
 
 	public void visit(BinarySelectorMessageElement binarySelectorMessageElement, String value, int line, UnaryObjectDescription unaryObjectDescription) {
+		System.out.println("TODO BinarySelectorMessageElement() " + value + " " + unaryObjectDescription);
 	}
 
 	public void visit(KeywordMessageElement keywordMessageElement, String keyword, int line, List<BinaryObjectDescription> binaryObjectDescriptions) {
+		System.out.println("TODO KeywordMessageElement() " + keyword + " " + binaryObjectDescriptions);
 	}
 
 	public void visit(UnaryObjectDescription unaryObjectDescription) {
+		System.out.println("TODO UnaryObjectDescription() " + unaryObjectDescription);
 	}
 
 	public void visit(BinaryObjectDescription binaryObjectDescription) {
+		System.out.println("TODO BinaryObjectDescription() " + binaryObjectDescription);
 	}
 
 	public void visit(UnaryExpression unaryExpression) {
+		System.out.println("TODO UnaryExpression() " + unaryExpression);
 	}
 
 	public void visitEnd(UnaryExpression unaryExpression) {
+		System.out.println("TODO UnaryExpression() " + unaryExpression);
 	}
 
 	public void visit(BinaryExpression binaryExpression) {
+		System.out.println("TODO BinaryExpression() " + binaryExpression);
 	}
 
 	public void visitEnd(BinaryExpression binaryExpression) {
@@ -220,9 +233,11 @@ public class Analyser implements NodeVisitor {
 	}
 
 	public void visit(PrimaryExpression primaryExpression) {
+		System.out.println("TODO PrimaryExpression() " + primaryExpression);
 	}
 
 	public void visit(PrimaryStatements primaryStatements) {
+		System.out.println("TODO PrimaryStatements() " + primaryStatements);
 	}
 
 	public void visit(Primitive primitive, String value, int line) {
@@ -230,12 +245,15 @@ public class Analyser implements NodeVisitor {
 	}
 
 	public void visit(Symbol symbol, String value, int line) {
+		System.out.println("TODO Symbol() " + value);
 	}
 
 	public void visit(Array array) {
+		System.out.println("TODO Array() " + array);
 	}
 
 	public void visit(Identifier identifier, String value, int line) {
+		System.out.println("TODO Identifier() " + value);
 	}
 
 	public void visit(LiteralSymbol literalSymbol, String value, int line) {
@@ -243,18 +261,23 @@ public class Analyser implements NodeVisitor {
 	}
 
 	public void visit(LiteralArray literalArray) {
+		System.out.println("TODO LiteralArray() " + literalArray);
 	}
 
 	public void visit(ArrayConstantElement arrayConstantElement) {
+		System.out.println("TODO ArrayConstantElement() " + arrayConstantElement);
 	}
 
 	public void visit(CharacterConstant characterConstant, String value, int line) {
+		System.out.println("TODO CharacterConstant() " + characterConstant);
 	}
 
 	public void visit(StringConstant stringConstant, String value, int line) {
+		System.out.println("TODO StringConstant() " + value);
 	}
 
 	public void visit(StringChunk stringChunk, String value, int line) {
+		System.out.println("TODO StringChunk() " + value);
 	}
 
 	public void visit(LiteralString literalString, String value, int line) {
@@ -265,15 +288,19 @@ public class Analyser implements NodeVisitor {
 	}
 
 	public void visit(LiteralCharacter literalCharacter, String value, int line) {
+		classBytecodeWriter.callPrimitiveCharacter(value.substring(1), line);
 	}
 
 	public void visit(NumberConstant numberConstant, String value, int line) {
+		System.out.println("TODO NumberConstant() " + value);
 	}
 
 	public void visit(LiteralNumber literalNumber, String value, int line) {
+		classBytecodeWriter.callPrimitiveInteger(literalNumber.value(), line);
 	}
 
 	public void visit(Block block) {
+		System.out.println("TODO Block() " + block);
 	}
 
 	public void visitEnd(Block block) {
