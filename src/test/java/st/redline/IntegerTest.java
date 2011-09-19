@@ -11,11 +11,18 @@ import static st.redline.RedlineTestHelper.one;
 import static st.redline.RedlineTestHelper.send;
 import static st.redline.RedlineTestHelper.three;
 import static st.redline.RedlineTestHelper.two;
+import static st.redline.RedlineTestHelper.stic;
 
 import java.lang.reflect.Field;
 import java.util.Map;
 
+import org.antlr.runtime.ANTLRStringStream;
+import org.antlr.runtime.CommonTokenStream;
 import org.junit.Test;
+
+import st.redline.compiler.Program;
+import st.redline.compiler.SmalltalkLexer;
+import st.redline.compiler.SmalltalkParser;
 
 public class IntegerTest {
 
@@ -84,6 +91,19 @@ public class IntegerTest {
 	public void testEquals() throws Exception {
 		assertTrue(isSmalltalkTrue(send(two, "=", two)));
 		assertTrue(isSmalltalkFalse(send(two, "=", three)));
+	}
+
+	
+	@Test
+	public void testExamine() throws Exception {
+		Preprocessor preprocessor = new Preprocessor();
+		Source source = preprocessor.parse(new SourceFile(new SourceFileFinder("st.redline.Integer").findSourceFile()));
+//		String sourceCode = new SourceFileReader().read(new SourceFile(new SourceFileFinder("st.redline.Integer").findSourceFile()));
+		SmalltalkLexer smalltalkLexer = new SmalltalkLexer(new ANTLRStringStream(source.source()));
+		SmalltalkParser smalltalkParser = new SmalltalkParser(new CommonTokenStream(smalltalkLexer));
+		Object o = smalltalkParser.array();
+		
+		System.out.println();
 	}
 	
 }
